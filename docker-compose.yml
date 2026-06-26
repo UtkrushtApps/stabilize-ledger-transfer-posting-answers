@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: utkrusht_postgres_assessment
+    environment:
+      POSTGRES_DB: ledgerlab
+      POSTGRES_USER: assessor
+      POSTGRES_PASSWORD: assessor_pass
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - ./data:/var/lib/postgresql/data
+      - ./init_database.sql:/docker-entrypoint-initdb.d/01_init_database.sql:ro
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "track_io_timing=on", "-c", "log_lock_waits=on", "-c", "deadlock_timeout=300ms"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assessor -d ledgerlab"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
